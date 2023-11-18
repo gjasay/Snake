@@ -1,42 +1,50 @@
 const c = document.getElementById("mainWindow");
 const ctx = c.getContext("2d");
 let score = 0;
+let highScore = 0;
 
 // Main game loop
 
 function render() {
-  // Updates score
+  // Updates score in UI
 
   document.getElementById("myScore").innerHTML = score;
+  document.getElementById("highScore").innerHTML = highScore;
 
-  // Draws the snake
+  // Updates highscore
+
+  if (score > highScore) {
+    highScore = score;
+  }
+
+  // Initial draw
 
   drawSnake();
-  drawBody();
   drawGrid();
+  drawFood();
 
   // Wall detection
 
-  if (xPos > maxX - 25) {
-    xPos -= 25;
+  if (xPos > maxX - gridSize) {
+    xPos -= gridSize;
   } else if (xPos < minX) {
-    xPos += 25;
-  } else if (yPos > maxY - 25) {
-    yPos -= 25;
+    xPos += gridSize;
+  } else if (yPos > maxY - gridSize) {
+    yPos -= gridSize;
   } else if (yPos < minY) {
-    yPos += 25;
+    yPos += gridSize;
   }
 
   // Snake movement
 
   if (snakeDirection == 0) {
-    yPos -= 25;
+    yPos -= gridSize;
   } else if (snakeDirection == 1) {
-    yPos += 25;
+    yPos += gridSize;
   } else if (snakeDirection == 2) {
-    xPos -= 25;
+    xPos -= gridSize;
   } else if (snakeDirection == 3) {
-    xPos += 25;
+    xPos += gridSize;
   }
 
   // Detects if snake eats food
@@ -44,9 +52,17 @@ function render() {
   if (xPos == foodX && yPos == foodY) {
     foodX = Math.floor(Math.random() * gridMaxX) * gridSize;
     foodY = Math.floor(Math.random() * gridMaxY) * gridSize;
-    drawFood();
     snakeLength++;
     score++;
+  }
+
+  // Checks if snake head is colliding with body
+
+  for (let i = 0; i < snakeBody.length; i++) {
+    if (xPos == snakeBody[i][0] && yPos == snakeBody[i][1]) {
+      resetGame();
+    } else {
+    }
   }
 
   // Sets the speed of game
@@ -65,59 +81,60 @@ const maxX = 700;
 const minX = 0;
 const maxY = 700;
 const minY = 0;
-const gridMaxY = maxY / 25;
-const gridMaxX = maxX / 25;
+const gridMaxY = maxY / gridSize;
+const gridMaxX = maxX / gridSize;
 
 function drawGrid() {
   // Grid line color
 
-  ctx.fillStyle = "rgba(255,255,255, 0.05)";
+  ctx.fillStyle = "rgb(35,35,35)";
 
   // All vertical lines
 
-  for (let i = 25; i < maxX; i += 25) {
+  for (let i = gridSize; i < maxX; i += gridSize) {
     ctx.fillRect(i, 0, 1, maxY);
   }
 
   // All horiziontal lines
 
-  for (let i = 25; i < maxY; i += 25) {
+  for (let i = gridSize; i < maxY; i += gridSize) {
     ctx.fillRect(0, i, maxX, 1);
   }
 }
 
-// Snake generation
+// Snake and food generation
 
-let foodX = 100;
-let foodY = 100;
 let xPos = 400;
 let yPos = 300;
 let snakeBody = [];
 let snakeLength = 3;
-
+let foodX = Math.floor(Math.random() * gridMaxX) * gridSize;
+let foodY = Math.floor(Math.random() * gridMaxY) * gridSize;
 let snakeDirection = 0;
 
-function drawSnake() {
-  ctx.fillStyle = "rgba(255,0,0)";
-  ctx.fillRect(xPos, yPos, gridSize, gridSize);
-}
+// Generates snake
 
-function drawBody() {
-  snakeBody.push([xPos, yPos]);
-  ctx.fillStyle = "rgba(200,0,0)";
-  ctx.fillRect(xPos, yPos, gridSize, gridSize);
-  if (snakeBody.length > snakeLength) {
-    var itemToRemove = snakeBody.shift();
-    ctx.clearRect(itemToRemove[0], itemToRemove[1], gridSize, gridSize);
+function drawSnake() {
+  if (xPos < maxX && yPos < maxY && xPos >= 0 && yPos >= 0) {
+    snakeBody.push([xPos, yPos]);
+    ctx.fillStyle = "rgb(0,127,92)";
+    ctx.fillRect(xPos, yPos, gridSize, gridSize);
+    if (snakeBody.length > snakeLength) {
+      var itemToRemove = snakeBody.shift();
+      ctx.clearRect(itemToRemove[0], itemToRemove[1], gridSize, gridSize);
+    }
+  } else {
+    resetGame();
   }
 }
 
-function drawFood() {
-  ctx.fillStyle = "rgba(255,255,0)";
-  ctx.fillRect(foodX, foodY, gridSize, gridSize);
-}
+// Generates food
 
-drawFood();
+function drawFood() {
+  ctx.fillStyle = "#FDCA40";
+  ctx.fillRect(foodX, foodY, gridSize, gridSize);
+  ctx.strokeRect(foodX, foodY, gridSize, gridSize);
+}
 
 // Keyboard input scripts
 
@@ -136,3 +153,17 @@ document.addEventListener("keydown", (key) => {
     snakeDirection = 3;
   }
 });
+
+// Resets game
+
+function resetGame() {
+  ctx.clearRect(0, 0, 700, 700);
+  foodX = Math.floor(Math.random() * gridMaxX) * gridSize;
+  foodY = Math.floor(Math.random() * gridMaxY) * gridSize;
+  xPos = 400;
+  yPos = 300;
+  snakeLength = 3;
+  snakeBody = [];
+  score = 0;
+  drawFood();
+}
