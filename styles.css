@@ -1,22 +1,32 @@
 body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 #header {
-    display: flex;
-    padding: 3rem;
+  border: 2px solid black;
+  padding: 0 700;
+  margin-bottom: 2rem;
+  margin-top: -1rem;
+  background-color: green;
+  display: flex;
+  flex-direction: column;
 }
 
 #header h1 {
-    font-size: 48px;
-    
+  font-size: 48px;
+}
+
+#header h2 {
+  text-align: center;
+  background-color: red;
+  border: 2px solid black;
 }
 
 #mainWindow {
-    border: 1px solid black;
-    display: flex;
-
+  border: 1px solid black;
+  display: flex;
+  background-color: black;
 }
