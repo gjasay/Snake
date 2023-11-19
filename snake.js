@@ -1,7 +1,10 @@
 const c = document.getElementById("mainWindow");
 const ctx = c.getContext("2d");
 let score = 0;
-let highScore = 0;
+
+if (localStorage.highScore == undefined) {
+  localStorage.setItem("highScore", 0);
+}
 
 // Main game loop
 
@@ -9,12 +12,12 @@ function render() {
   // Updates score in UI
 
   document.getElementById("myScore").innerHTML = score;
-  document.getElementById("highScore").innerHTML = highScore;
+  document.getElementById("highScore").innerHTML = localStorage.highScore;
 
   // Updates highscore
 
-  if (score > highScore) {
-    highScore = score;
+  if (score > localStorage.highScore) {
+    localStorage.highScore = score;
   }
 
   // Initial draw
@@ -22,18 +25,6 @@ function render() {
   drawSnake();
   drawGrid();
   drawFood();
-
-  // Wall detection
-
-  if (xPos > maxX - gridSize) {
-    xPos -= gridSize;
-  } else if (xPos < minX) {
-    xPos += gridSize;
-  } else if (yPos > maxY - gridSize) {
-    yPos -= gridSize;
-  } else if (yPos < minY) {
-    yPos += gridSize;
-  }
 
   // Snake movement
 
@@ -166,4 +157,53 @@ function resetGame() {
   snakeBody = [];
   score = 0;
   drawFood();
+}
+
+// Mobile swipe recognition
+
+document.addEventListener("touchstart", handleTouchStart, false);
+document.addEventListener("touchmove", handleTouchMove, false);
+
+let xDown = null;
+let yDown = null;
+
+function getTouches(evt) {
+  return evt.touches || evt.originalEvent.touches;
+}
+
+function handleTouchStart(evt) {
+  const firstTouch = getTouches(evt)[0];
+  xDown = firstTouch.clientX;
+  yDown = firstTouch.clientY;
+}
+
+function handleTouchMove(evt) {
+  if (!xDown || !yDown) {
+    return;
+  }
+
+  const xUp = evt.touches[0].clientX;
+  const yUp = evt.touches[0].clientY;
+
+  const xDiff = xDown - xUp;
+  const yDiff = yDown - yUp;
+
+  // Mobile input script
+
+  if (Math.abs(xDiff) > Math.abs(yDiff)) {
+    if (xDiff < 0 && snakeDirection != 2) {
+      snakeDirection = 3;
+    } else if (xDiff > 0 && snakeDirection != 3) {
+      snakeDirection = 2;
+    }
+  } else {
+    if (yDiff < 0 && snakeDirection != 0) {
+      snakeDirection = 1;
+    } else if (yDiff > 0 && snakeDirection != 1) {
+      snakeDirection = 0;
+    }
+  }
+
+  xDown = null;
+  yDown = null;
 }
